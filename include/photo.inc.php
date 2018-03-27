@@ -4,12 +4,12 @@
         <p class="likes"><?php echo $photos["nb_likes"]; ?> likes</p>
     </a>
     <div class="infos">
-        <h3><?php echo $photos["titre"]; ?> # <?php echo $photos["categorie_id"]; ?></h3>
-
-        <?php if (count($photos["tags"]) > 0) : ?>
+        <h3><?php echo $photos["titre"]; ?> # <?php echo $photos["categorie"]; ?></h3>
+        <?php $liste_tags = getAllTagsByPhoto($photos["id"]) ?>
+        <?php if (count($liste_tags) > 0) : ?>
             <p>
-                <?php foreach ($photos["tags"] as $tag) : ?>
-                    <?php echo "# " . $tag; ?>
+                <?php foreach ($liste_tags as $tag) : ?>
+                    <?php echo "# " . $tag["titre"]; ?>
                 <?php endforeach; ?>
             </p>
         <?php endif; ?>

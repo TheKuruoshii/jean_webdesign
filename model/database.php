@@ -12,16 +12,17 @@ function getAllPhotos(): array {
     global $connection;
 
     $query = "SELECT
-	id,
-	titre,
-    image,
-    nb_likes,
-    date_creation,
-    description,
-    DATE_FORMAT(date_creation, '%e %M %Y') AS 'date_creation_format'
+	photo.id,
+	photo.titre,
+    photo.image,
+    photo.nb_likes,
+    photo.date_creation,
+    DATE_FORMAT(photo.date_creation, '%e %M %Y') AS 'date_creation_format',
+    categorie.titre AS categorie
 FROM photo 
-ORDER BY date_creation DESC 
-LIMIT 6";
+INNER JOIN categorie ON categorie.id = photo.categorie_id
+ORDER BY photo.date_creation DESC 
+LIMIT 6;";
 
     $stmt = $connection->prepare($query);
     $stmt->execute();
@@ -67,15 +68,30 @@ ORDER BY date_creation DESC";
     return $stmt->fetchAll();
 }
 
-function insertCommentaire(string $contenu, int $photo_id) {
+function getAllTagsByPhoto (int $id): array {
     global $connection;
     
-    $query = "INSERT INTO commentaire(contenu, date_creation, photo_id) VALUES(:contenu, NOW(), :photo_id)";
+    $query = "SELECT 
+	tag.id,
+    tag.titre
+FROM tag
+INNER JOIN photo_has_tag ON photo_has_tag.tag_id = tag.id
+WHERE photo_has_tag.photo_id = :id;";
     
+    $stmt = $connection->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+
+    return $stmt->fetchAll();
+}
+
+function insertCommentaire(string $contenu, int $photo_id) {
+    global $connection;
+
+    $query = "INSERT INTO commentaire(contenu, date_creation, photo_id) VALUES(:contenu, NOW(), :photo_id)";
+
     $stmt = $connection->prepare($query);
     $stmt->bindParam(":contenu", $contenu);
     $stmt->bindParam(":photo_id", $photo_id);
     $stmt->execute();
-
-    
 }
