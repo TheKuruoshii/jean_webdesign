@@ -95,3 +95,38 @@ function insertCommentaire(string $contenu, int $photo_id) {
     $stmt->bindParam(":photo_id", $photo_id);
     $stmt->execute();
 }
+
+function getTag(int $id): array {
+    global $connection;
+
+    $query = "SELECT * FROM tag WHERE id=:id";
+
+    $stmt = $connection->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+
+    return $stmt->fetch();
+}
+
+function getAllPhotosByTag(int $id): array {
+    global $connection;
+
+    $query = "SELECT 
+	photo.id,
+	photo.titre,
+    photo.image,
+    photo.nb_likes,
+    photo.date_creation,
+    DATE_FORMAT(photo.date_creation, '%e %M %Y') AS 'date_creation_format',
+    categorie.titre AS categorie
+FROM photo
+INNER JOIN photo_has_tag ON photo_has_tag.photo_id = photo_id
+INNER JOIN categorie ON categorie.id = photo.categorie_id
+WHERE photo_has_tag.tag_id = :id;";
+
+    $stmt = $connection->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+
+    return $stmt->fetchAll();
+}
